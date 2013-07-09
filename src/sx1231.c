@@ -185,12 +185,16 @@ uint8_t sx_read8(uint8_t address)
  * @param mode    Could be: RX (receiver), TX (tranceiver), SLEEP,
  *                FS (Frenquency Synthesizer mode) or STBY (standby).
  */
+static uint8_t last_mode = STDBY;
 void sx_mode(uint8_t mode)
 {
     sx_write8(REG_OP_MODE, ((sx_read8(REG_OP_MODE) & !(MODE(0b11))) | MODE(mode)));
     wait_mode_ready();
     if (mode == RX)
-        chThdSleepMilliseconds(100); // wait_rx_ready();
+        chThdSleepMilliseconds(10); // wait_rx_ready();
+
+    if(mode != STDBY)
+        last_mode = mode;
 }
 
 

@@ -30,7 +30,7 @@ int main (void)
     dio_init();
     led_init();
 
-    chThdSleepSeconds(10);
+    chThdSleepSeconds(3);
 
     usb_puts("Hardware test beggin\n");
     /* USB test */
@@ -45,6 +45,7 @@ int main (void)
     conf.fec = WITHOUT_FEC;
     conf.pack_class = FOREGROUND_CLASS;
     conf.rssi_thresh = 100;
+    conf.tx_eirp = GAIN_0;
 
     phy_config(&conf);
     while(1) {
@@ -73,7 +74,7 @@ int main (void)
 #elif (TEST_MODE == REC_BACKGROUND_MODE)
     for(int i = 0; i < 50; i++) buffer[i] = 0;
     usb_puts("Receive background test\n");
-    conf.channel = CH_HI_RATE_0A;
+    conf.channel = CH_NORMAL_3;
     conf.preamble = 0;
     conf.fec = WITHOUT_FEC;
     conf.pack_class = BACKGROUND_CLASS;
@@ -89,10 +90,10 @@ int main (void)
             usb_puts("rssi value = ");
             usb_printf("%u\n",phy_packet_rssi());
             if(error == PHY_CRC_ERROR) {
-                puts("crc error\n");
+                usb_puts("crc error\n");
             } else {
             for(int i = 0; i < error; i++)
-                usb_printf("%u ",buffer[1]);
+                usb_printf("%u ",buffer[i]);
             }
             usb_puts("\n"); 
         } else if (error == PHY_REC_TIMEOUT){
@@ -115,7 +116,7 @@ int main (void)
     while(1) {
         phy_proc_start();
         phy_add_frame(buffer);
-        error = phy_send_packet(20);
+        error = phy_send_packet(20,TRUE);
         if(error == PHY_SEND_SUCCESS){
             usb_puts("send succes\n");
         } else {
@@ -126,7 +127,7 @@ int main (void)
 
 #elif (TEST_MODE == SEND_BACKGROUND_MODE)
     usb_puts("Send background test\n");
-    conf.channel = CH_HI_RATE_0A;
+    conf.channel = CH_NORMAL_3;
     conf.preamble = 0;
     conf.fec = WITHOUT_FEC;
     conf.pack_class = BACKGROUND_CLASS;
@@ -136,7 +137,7 @@ int main (void)
     while(1) {
         phy_proc_start();
         phy_add_frame(buffer);
-        error = phy_send_packet(20);
+        error = phy_send_packet(20,TRUE);
         if(error == PHY_SEND_SUCCESS){
             usb_puts("send succes\n");
         } else {

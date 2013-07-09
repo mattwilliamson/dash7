@@ -30,6 +30,12 @@ typedef uint16_t d7_sti;
 
 static inline systime_t d7_ti_to_systime(d7_ti ti)
 {
-    return (int)(ti*0.977);
+    return ((ti*977)/1000);
 }
+
+static inline d7_ti systime_to_d7_ti(systime_t milli)
+{
+    return (int)((milli*1000)/977);
+}
+
 #endif //DASH7_CONFIGURATIONS

@@ -48,8 +48,11 @@ typedef struct phy_param{
     uint8_t fec : 1;
     uint8_t pack_class : 1;
     uint8_t rssi_thresh;
+    uint8_t tx_eirp; //gain value from sx1231.h
 } phy_param_t;
 
+// Buffer for the frames
+extern uint8_t phy_frame_buf[N_FRAMES][FRAME_SIZE];
 
 void phy_config(phy_param_t *conf);
 void phy_init(void);
@@ -60,7 +63,7 @@ void phy_proc_finish(void);
 int phy_add_frame(uint8_t *frame);
 #define PHY_SEND_SUCCESS 0
 #define PHY_CHANNEL_BUSY -1
-int phy_send_packet(d7_ti ti);
+int phy_send_packet(d7_ti ti, uint8_t ca);
 #define NEXT_BYTE_TIMEOUT 20
 #define PHY_REC_TIMEOUT -1
 #define PHY_BYTE_TIMEOUT -2
