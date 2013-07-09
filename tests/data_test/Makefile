@@ -95,6 +95,7 @@ CSRC = $(PORTSRC) \
        $(C_FILES)/dash7/data.c \
        $(C_FILES)/led.c \
        $(C_FILES)/crc16.c \
+       $(C_FILES)/pn9.c \
        main.c
 
 

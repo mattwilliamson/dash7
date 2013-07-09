@@ -14,8 +14,9 @@
 #define REPLY_MODE 1
 
 #define TEST_MODE STARTER_MODE
+//#define TEST_MODE REPLY_MODE
 
-uint8_t buffer[20] = {10,0,0x05,4,5,6,7,8,9,1};
+uint8_t buffer[20] = {10,0,0x06,4,5,6,7,8,9,1};
 
 int main (void)
 {
@@ -30,19 +31,19 @@ int main (void)
     dio_init();
     led_init();
 
-    chThdSleepSeconds(10);
+    chThdSleepSeconds(3);
 
     usb_puts("Software test beggin\n");
 
     /*This first section must be changed for a porper function */
     data_conf.CSMAen = 1;
-    data_conf.Ecca = 180; //standard is 110, but the channel is always busy in this case 
-    data_conf.Esm = 180; //so far I've been using Ecca like Esm, see what needs to change 
-    data_conf.FPP = 5; 
-    data_conf.MFPP = 5; //This one is useless since it is done by a define
-    data_conf.Tbsd = 20; 
-    data_conf.Tc = 10; //This should be done by the payload, but this is for testing
-    data_conf.Tca = 20;
+    data_conf.Ecca = 110; //standard is 110, but the channel is always busy in this case 
+    //data_conf.Esm = 180; //so far I've been using Ecca like Esm, see what needs to change 
+    //data_conf.FPP = 5; 
+    //data_conf.MFPP = 5; //This one is useless since it is done by a define
+    data_conf.Tbsd = 50; 
+    data_conf.Tc = 500; //This should be done by the payload, but this is for testing
+    data_conf.Tca = 100;
     data_conf.Tfsd = 20;
     data_conf.Tg = 10; 
     data_conf.Tgd = 5; /* Not beeing used yet */ 
@@ -50,9 +51,9 @@ int main (void)
     /* bad section end */
 
     data_proc_param_t proc_conf;
-    proc_conf.channel = CH_HI_RATE_0A;
+    proc_conf.channel = CH_NORMAL_0;
     proc_conf.pack_class = FOREGROUND_CLASS;
-    proc_conf.my_subnet = 0x05;
+    proc_conf.my_subnet = 0x06;
     proc_conf.fec = 0;
 
     rand_init(30);
@@ -60,35 +61,76 @@ int main (void)
     data_proc_config(&proc_conf);
 
     usb_puts("Configurations ready\n");
+
+    systime_t time;
+
     while(random()){
         data_proc_start();
 #if TEST_MODE == STARTER_MODE
+        data_proc_config(&proc_conf);
         usb_puts("Sending message\n");
         error = data_add_frame(buffer); 
+        usb_printf("data_add_frame result=%d\n",error);
         if(error < 0)
             usb_puts("data_add_frame\n");
         if(error == -1)
             usb_puts("PHY_CBUFFER_FULL\n");
         if(error == -2)
             usb_puts("PHY_SIZE_PROBLEM\n");
-        usb_puts("before sending\n");
-        error = data_send_packet(); 
+        error = data_send_packet();
+        time = chTimeNow(); 
+        //error = phy_send_packet(0); 
+        usb_printf("data_send_packet result=%d\n",error);
         usb_puts("sended?\n");
         if(error == -2)
             usb_puts("DATA_SEND_TIMEOUT\n");
         if(error == -1)
             usb_puts("DATA_CHANNEL_BUSY\n");
-        error = data_dialogue();
-        usb_puts("dialogued?\n");
-        if(error < 0)
-            usb_puts("data_dialogue\n");
-        if(error == -4)
-            usb_puts("DATA_DIALOGUE_TIMEOUT\n");
-        phy_frame_buf[0][6]++;
-        error = data_send_packet(); 
-        data_send_packet_protected();
-            
+        error = data_dialogue(time,data_conf.Tc);
+        time = chTimeNow(); 
+        usb_printf("data_dialogue result=%d\n",error);
+        if(error >= 0){
+            data_get_frame(buffer,20);
+            for(int i = 0; i < buffer[0]; i++)
+                usb_printf("%d ",buffer[i]);
+            usb_puts("\n");
+            buffer[6]++;
+            chThdSleepMilliseconds(30);
+            error = data_add_frame(buffer); 
+            data_answer_time(time,data_conf.Tc);
+            error = data_send_packet_protected();
+            usb_printf("data_send_packet result=%d\n",error);
+        }
+        usb_puts("_____________________________________\n");
+        chThdSleepMilliseconds(3);
 #else
+        usb_puts("RECEIVING Message message\n");
+        error = phy_receive_packet(1000);
+        time = chTimeNow();
+        usb_printf("data_listen result=%d\n",error);
+        /* SHOW PACKET */
+        if(error >= 0){
+            data_get_frame(buffer,20);
+            for(int i = 0; i < buffer[0]; i++)
+                usb_printf("%d ",buffer[i]);
+            usb_puts("\n");
+            buffer[7]++;
+            data_answer_time(time,data_conf.Tc);
+            error = data_add_frame(buffer); 
+            error = data_send_packet_protected();
+            usb_printf("data_send_packet_protected result=%d\n",error);
+            time = chTimeNow(); 
+            error = data_dialogue(time,data_conf.Tc);
+            usb_printf("data_dialogue result=%d\n",error);
+            if(error >= 0){
+                data_get_frame(buffer,20);
+                for(int i = 0; i < buffer[0]; i++)
+                    usb_printf("%d ",buffer[i]);
+                usb_puts("\n");
+            }
+        }
+        
+        usb_puts("_____________________________________\n");
 #endif
         data_proc_finish(); 
     }
