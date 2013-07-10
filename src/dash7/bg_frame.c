@@ -47,9 +47,6 @@ int advp_scan(void)
     time2 = chTimeNow();
 
     sleep = d7_ti_to_systime(conf.time) - (time2 - time1) - SAFE_SLEEP_WINDOW;
-    //sleep = d7_ti_to_systime(conf.time) - (time2 - time1);
-    //return -sleep;
-    //if(sleep > (data_conf.Tfsd / 2))
     //sleep until the time to receive the packet is reached
     chThdSleepMilliseconds(sleep);
 
