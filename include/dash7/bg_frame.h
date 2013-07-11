@@ -35,8 +35,8 @@ static inline void bg_set_advp(uint8_t *frame, bg_param_t *conf)
 {
     frame[1] = 0xF0;
     frame[2] = conf->channel;
-    frame[3] = (conf->time & 0xFF);
-    frame[4] = ((conf->time >> 8) & 0xFF);
+    frame[3] = ((conf->time >> 8) & 0xFF);
+    frame[4] = (conf->time & 0xFF);
 }
 
 /*
@@ -46,8 +46,8 @@ static inline void bg_set_rsvp(uint8_t *frame, bg_param_t *conf)
 {
     frame[1] = 0xF1;
     frame[2] = conf->channel;
-    frame[3] = (conf->time & 0xFF);
-    frame[4] = ((conf->time >> 8) & 0xFF);
+    frame[3] = ((conf->time >> 8) & 0xFF);
+    frame[4] = (conf->time & 0xFF);
 }
 
 /*
@@ -57,7 +57,7 @@ static inline void bg_get_advp(uint8_t *frame, bg_param_t *conf)
 {
     conf->protocol = frame[1];
     conf->channel = frame[2];
-    conf->time = frame[3] + (frame[4] << 8);
+    conf->time = frame[4] + (frame[3] << 8);
 }
 
 /*

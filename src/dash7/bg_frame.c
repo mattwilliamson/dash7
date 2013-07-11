@@ -21,6 +21,9 @@ int advp_scan_bg(bg_param_t *advp_conf)
     else return 0;
 }
 
+//RX time is the time the transceiver takes to change to RX mode
+//Can be found in sx1231.c
+#define RX_TIME 20
 int advp_scan(void)
 {
     int error;
@@ -46,7 +49,7 @@ int advp_scan(void)
 
     time2 = chTimeNow();
 
-    sleep = d7_ti_to_systime(conf.time) - (time2 - time1) - SAFE_SLEEP_WINDOW;
+    sleep = d7_ti_to_systime(conf.time) - (time2 - time1) - SAFE_SLEEP_WINDOW - RX_TIME;
     //sleep until the time to receive the packet is reached
     chThdSleepMilliseconds(sleep);
 
@@ -57,9 +60,9 @@ int advp_scan(void)
     else return error;
 }
 
-#define SAFE_ADVP_WINDOW 100
+#define SAFE_ADVP_WINDOW 0
 #define MIN_ADVP_TIME 500
-#define PROT_SEND_TIME 310
+#define PROT_SEND_TIME 0
 int advp_send(uint8_t *frame, d7_ti time, uint8_t bg_channel, uint8_t fg_channel)
 {
     systime_t now;
@@ -106,9 +109,9 @@ int advp_send(uint8_t *frame, d7_ti time, uint8_t bg_channel, uint8_t fg_channel
     data_proc_config(&data_proc_conf);
     data_add_frame(frame);
     now = chTimeNow();
-    if(now > end) 
-        return -(now - end);
-    chThdSleepMilliseconds(end-now);
+    //if(now > end) 
+    //    return -(now - end);
+    //chThdSleepMilliseconds(end-now);
 
     return data_send_packet_protected();
 }

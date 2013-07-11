@@ -20,7 +20,7 @@ PHYSICAL LAYER
  */
 #define N_FRAMES 5
 
-#define FRAME_SIZE 257
+#define FRAME_SIZE 255
 
 /********************
 TIME UNITS

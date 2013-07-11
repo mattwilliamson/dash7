@@ -345,7 +345,8 @@ int phy_add_frame(uint8_t *frame)
         for(int i = 0; i < size; i++)
             phy_frame_buf[phy_frame_pos][i] = frame[i];
     }
-    phy_frame_buf[phy_frame_pos][0] += 2; //add the crc to the length 
+    if(phy_conf.pack_class != BACKGROUND_CLASS)
+        phy_frame_buf[phy_frame_pos][0] += 2; //add the crc to the length 
 
     //calculate the crc of the frame
     uint16_t crc = 0xFFFF;
@@ -491,7 +492,8 @@ int phy_get_frame(uint8_t *frame, int max_size)
     for (int i = 0; i < frame_end; i++)
         frame[i] = phy_frame_buf[phy_frame_pos][i];
 
-    frame[0] -= 2;
+    if(phy_conf.pack_class != BACKGROUND_CLASS)
+        frame[0] -= 2;
 
     phy_frame_pos++;
     //return size of frame

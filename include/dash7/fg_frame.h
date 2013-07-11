@@ -28,7 +28,7 @@ typedef struct fg_addr_ctl {
 } fg_addr_ctl_t;
 
 /* addr ctl flags value */
-#define ADDR_VID (1<<7)
+#define ADDR_VID (1<<5)
 #define ADDR_NLS (1<<4)
 
 #define ADDR_UNICAST (0x0 << 6)
@@ -93,9 +93,15 @@ void fg_frame_start(uint8_t *frame, fg_FH_t *fh);
 void fg_set_addr(uint8_t *frame, uint8_t *addr, uint8_t type);
 
 /*
- set the payload and the frame length
+ return the maximum number of bytes the payload can have
  */
-void fg_set_payload(uint8_t *frame, uint8_t *payload, uint8_t size);
+int fg_payload_max_size(uint8_t *frame);
+
+/*
+ set the payload and the frame length
+ return 0 if ok, else return the maximum lenght the payload can have
+ */
+int fg_set_payload(uint8_t *frame, uint8_t *payload, uint8_t size);
 
 #define SMALL_SIZE -1
 /*

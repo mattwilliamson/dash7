@@ -135,10 +135,20 @@ void fg_set_addr(uint8_t *frame, uint8_t *addr, uint8_t type)
     }
 }
 
-void fg_set_payload(uint8_t *frame, uint8_t *payload, uint8_t size)
+int fg_payload_max_size(uint8_t *frame)
+{
+    //TODO: consider DSSL footer
+    int pos = fg_payload_pos(frame);
+    return FRAME_SIZE - 2 - pos;//max size - header size - crc size
+}
+
+int fg_set_payload(uint8_t *frame, uint8_t *payload, uint8_t size)
 {
     int pos = fg_payload_pos(frame);
-    
+    int payload_size = fg_payload_max_size(frame);
+    if (payload_size > size)
+        return payload_size; 
+   
     for (int i = 0; i < size; i++)
         frame[pos + i] = payload[i];
 
@@ -146,6 +156,7 @@ void fg_set_payload(uint8_t *frame, uint8_t *payload, uint8_t size)
      * be changed */
     //Set the frame length
     frame[0] = pos+size;
+    return 0;
 }
 
 int fg_get_payload(uint8_t *frame, uint8_t *payload, uint8_t size)

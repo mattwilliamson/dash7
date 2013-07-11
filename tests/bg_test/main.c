@@ -14,8 +14,8 @@
 #define STARTER_MODE 0
 #define REPLY_MODE 1
 
-#define TEST_MODE STARTER_MODE
-//#define TEST_MODE REPLY_MODE
+//#define TEST_MODE STARTER_MODE
+#define TEST_MODE REPLY_MODE
 //#define TEST_MODE 10
 
 uint8_t buffer[20] = {10,0,0x06,4,5,6,7,8,9,1};
@@ -43,7 +43,7 @@ int main (void)
     data_conf.Ecca = 110; //standard is 110, but the channel is always busy in this case 
     data_conf.Tbsd = 100; 
     data_conf.Tca = 100;
-    data_conf.Tfsd = 300;
+    data_conf.Tfsd = 50;
     data_conf.Tg = 10; 
     data_conf.Tl = 100; 
     /* bad section end */
