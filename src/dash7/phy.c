@@ -106,11 +106,11 @@ static int phy_receive_foreground(d7_ti ti)
         //read the lenght byte
         phy_frame_buf[fi][0] = sx_read8(REG_FIFO);
         phy_frame_buf[fi][0] = pn9_calc(&lsfr1,&lsfr2,phy_frame_buf[fi][0]);
-        size = phy_frame_buf[fi][0] + 2; //lenght + crc
+        size = phy_frame_buf[fi][0]; //length
 
         //check if the size is a good one
         bytes_read = 1;
-        if(size < 6){
+        if(size < 8){
             bad_size = 1;
             goto _end;
         }
@@ -133,6 +133,7 @@ static int phy_receive_foreground(d7_ti ti)
 
 _end:
     phy_frame_filled = fi+1;
+    phy_frame_pos = 0;
     sx_mode(STDBY);
     empty_fifo();
     if (byte_timeout)
@@ -344,6 +345,7 @@ int phy_add_frame(uint8_t *frame)
         for(int i = 0; i < size; i++)
             phy_frame_buf[phy_frame_pos][i] = frame[i];
     }
+    phy_frame_buf[phy_frame_pos][0] += 2; //add the crc to the length 
 
     //calculate the crc of the frame
     uint16_t crc = 0xFFFF;
@@ -366,7 +368,7 @@ static void foreground_pn9(void)
     uint8_t lsfr2 = 0x1;
 
     for (int i = 0; i < phy_frame_pos; i++) {
-        phy_frame_size[i] = phy_frame_buf[i][0] + 2; //length + crc
+        phy_frame_size[i] = phy_frame_buf[i][0]; //length
         for(int j = 0; j < phy_frame_size[i]; j++)
             phy_frame_buf[i][j] = pn9_calc(&lsfr1,&lsfr2,phy_frame_buf[i][j]);
     }
@@ -466,7 +468,7 @@ int phy_get_frame(uint8_t *frame, int max_size)
     if(phy_conf.pack_class == BACKGROUND_CLASS)
         frame_end = BG_FRAME_SIZE;
     else
-        frame_end = phy_frame_buf[phy_frame_pos][0];
+        frame_end = phy_frame_buf[phy_frame_pos][0] - 2;
 
     //check if there is enough space for the frame
     if(frame_end > max_size)
@@ -488,6 +490,8 @@ int phy_get_frame(uint8_t *frame, int max_size)
     //copy frame to user space
     for (int i = 0; i < frame_end; i++)
         frame[i] = phy_frame_buf[phy_frame_pos][i];
+
+    frame[0] -= 2;
 
     phy_frame_pos++;
     //return size of frame
