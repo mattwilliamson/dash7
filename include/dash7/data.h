@@ -12,19 +12,11 @@
 typedef struct data_param {
     uint8_t CSMAen : 1;
     uint8_t Ecca;
-    //uint8_t Esm; //used as Ecca
-    //uint8_t FPP; //aways used as MFPP
-    //uint8_t MFPP; //defined phy.h as a constant value
-    //uint16_t RTSM;
-    //uint16_t RTSV;
     uint16_t Tbsd;
-    uint16_t Tc;
     uint16_t Tca;
     uint16_t Tfsd;
     uint16_t Tg;
-    uint16_t Tgd;
     uint16_t Tl;
-    //uint16_t Tnse; //not needed
 } data_param_t;
 
 /**
@@ -34,7 +26,6 @@ typedef struct data_param {
 typedef struct data_proc_param {
     uint8_t channel;
     uint8_t pack_class;
-    uint8_t next_scan;
     uint8_t tx_eirp;
     uint8_t fec;
     uint8_t my_subnet;

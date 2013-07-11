@@ -13,8 +13,8 @@
 #define STARTER_MODE 0
 #define REPLY_MODE 1
 
-#define TEST_MODE STARTER_MODE
-//#define TEST_MODE REPLY_MODE
+//#define TEST_MODE STARTER_MODE
+#define TEST_MODE REPLY_MODE
 
 uint8_t buffer[20] = {10,0,0x06,4,5,6,7,8,9,1};
 
@@ -42,11 +42,11 @@ int main (void)
     //data_conf.FPP = 5; 
     //data_conf.MFPP = 5; //This one is useless since it is done by a define
     data_conf.Tbsd = 50; 
-    data_conf.Tc = 500; //This should be done by the payload, but this is for testing
+    //data_conf.Tc = 500; //This should be done by the payload, but this is for testing
     data_conf.Tca = 100;
     data_conf.Tfsd = 20;
     data_conf.Tg = 10; 
-    data_conf.Tgd = 5; /* Not beeing used yet */ 
+    //data_conf.Tgd = 5; /* Not beeing used yet */ 
     data_conf.Tl = 100; 
     /* bad section end */
 
@@ -86,7 +86,7 @@ int main (void)
             usb_puts("DATA_SEND_TIMEOUT\n");
         if(error == -1)
             usb_puts("DATA_CHANNEL_BUSY\n");
-        error = data_dialogue(time,data_conf.Tc);
+        error = data_dialogue(time,500);
         time = chTimeNow(); 
         usb_printf("data_dialogue result=%d\n",error);
         if(error >= 0){
@@ -97,7 +97,7 @@ int main (void)
             buffer[6]++;
             chThdSleepMilliseconds(30);
             error = data_add_frame(buffer); 
-            data_answer_time(time,data_conf.Tc);
+            data_answer_time(time,500);
             error = data_send_packet_protected();
             usb_printf("data_send_packet result=%d\n",error);
         }
@@ -115,12 +115,12 @@ int main (void)
                 usb_printf("%d ",buffer[i]);
             usb_puts("\n");
             buffer[7]++;
-            data_answer_time(time,data_conf.Tc);
+            data_answer_time(time,500);
             error = data_add_frame(buffer); 
             error = data_send_packet_protected();
             usb_printf("data_send_packet_protected result=%d\n",error);
             time = chTimeNow(); 
-            error = data_dialogue(time,data_conf.Tc);
+            error = data_dialogue(time,500);
             usb_printf("data_dialogue result=%d\n",error);
             if(error >= 0){
                 data_get_frame(buffer,20);

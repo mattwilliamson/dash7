@@ -13,9 +13,9 @@
 #define SEND_FOREGROUND_MODE 2
 #define SEND_BACKGROUND_MODE 3
 
-#define TEST_MODE SEND_BACKGROUND_MODE
+#define TEST_MODE SEND_FOREGROUND_MODE
 
-uint8_t buffer[500] = {50,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49};
+uint8_t buffer[500] = {8,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49};
 
 int main (void)
 {
@@ -40,7 +40,7 @@ int main (void)
 #if (TEST_MODE == REC_FOREGROUND_MODE)
     for(int i = 0; i < 50; i++) buffer[i] = 0;
     usb_puts("Receive foreground test\n");
-    conf.channel = CH_HI_RATE_0A;
+    conf.channel = CH_NORMAL_0;
     conf.preamble = 0;
     conf.fec = WITHOUT_FEC;
     conf.pack_class = FOREGROUND_CLASS;
@@ -57,7 +57,7 @@ int main (void)
             usb_puts("rssi value = ");
             usb_printf("%u\n",phy_packet_rssi());
             if(error == PHY_CRC_ERROR) {
-                puts("crc error\n");
+                usb_puts("crc error\n");
             } else {
             for(int i = 0; i < buffer[0]; i++)
                 usb_printf("%u ",buffer[i]);
@@ -74,7 +74,7 @@ int main (void)
 #elif (TEST_MODE == REC_BACKGROUND_MODE)
     for(int i = 0; i < 50; i++) buffer[i] = 0;
     usb_puts("Receive background test\n");
-    conf.channel = CH_NORMAL_3;
+    conf.channel = CH_NORMAL_0;
     conf.preamble = 0;
     conf.fec = WITHOUT_FEC;
     conf.pack_class = BACKGROUND_CLASS;
@@ -90,7 +90,8 @@ int main (void)
             usb_puts("rssi value = ");
             usb_printf("%u\n",phy_packet_rssi());
             if(error == PHY_CRC_ERROR) {
-                usb_puts("crc error\n");
+                usb_printf("get_frame error: %u ",error);
+                usb_puts("\n");
             } else {
             for(int i = 0; i < error; i++)
                 usb_printf("%u ",buffer[i]);
@@ -106,7 +107,7 @@ int main (void)
     }
 #elif (TEST_MODE == SEND_FOREGROUND_MODE)
     usb_puts("Send foreground test\n");
-    conf.channel = CH_HI_RATE_0A;
+    conf.channel = CH_NORMAL_0;
     conf.preamble = 0;
     conf.fec = WITHOUT_FEC;
     conf.pack_class = FOREGROUND_CLASS;
@@ -127,7 +128,7 @@ int main (void)
 
 #elif (TEST_MODE == SEND_BACKGROUND_MODE)
     usb_puts("Send background test\n");
-    conf.channel = CH_NORMAL_3;
+    conf.channel = CH_NORMAL_0;
     conf.preamble = 0;
     conf.fec = WITHOUT_FEC;
     conf.pack_class = BACKGROUND_CLASS;

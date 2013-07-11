@@ -42,11 +42,9 @@ int main (void)
     data_conf.CSMAen = 1;
     data_conf.Ecca = 110; //standard is 110, but the channel is always busy in this case 
     data_conf.Tbsd = 100; 
-    data_conf.Tc = 500; //This should be done by the payload, but this is for testing
     data_conf.Tca = 100;
     data_conf.Tfsd = 300;
     data_conf.Tg = 10; 
-    data_conf.Tgd = 5; /* Not beeing used yet */ 
     data_conf.Tl = 100; 
     /* bad section end */
 
